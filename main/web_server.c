@@ -348,26 +348,74 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
 
 static esp_err_t root_handler(httpd_req_t *req)
 {
-    // Generate dynamic content for outputs
-    char* dynamic_content = malloc(8192);  // Increased from 4096
-    strcpy(dynamic_content, html_page);
+    /*
+     * Memory-safe HTML generation for the web interface root page.
+     * 
+     * This function addresses several critical security issues:
+     * 1. Buffer overflow protection with proper size checking
+     * 2. Memory allocation error handling 
+     * 3. Bounds checking for all string operations
+     * 4. Safe HTML content replacement logic
+     * 
+     * Buffer sizes increased from previous vulnerable implementation:
+     * - dynamic_content: 8KB -> 16KB (prevents overflow with max content)
+     * - outputs_html: 4KB -> 8KB (handles 5 outputs safely)
+     */
+    // Generate dynamic content for outputs with sufficient buffer size
+    const size_t dynamic_content_size = 16384;  // 16KB for safety
+    char* dynamic_content = malloc(dynamic_content_size);
+    if (dynamic_content == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for dynamic content");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Memory allocation failed");
+        return ESP_FAIL;
+    }
+    
+    // Safely copy base HTML page with bounds checking
+    size_t html_page_len = strlen(html_page);
+    if (html_page_len >= dynamic_content_size) {
+        ESP_LOGE(TAG, "Base HTML page too large for buffer");
+        free(dynamic_content);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Internal error");
+        return ESP_FAIL;
+    }
+    strncpy(dynamic_content, html_page, dynamic_content_size - 1);
+    dynamic_content[dynamic_content_size - 1] = '\0';
     
     // Replace the outputs div with actual output controls
-    char outputs_html[4096] = "";  // Increased from 2048
+    const size_t outputs_html_size = 8192;  // 8KB for safety
+    char* outputs_html = malloc(outputs_html_size);
+    if (outputs_html == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for outputs HTML");
+        free(dynamic_content);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Memory allocation failed");
+        return ESP_FAIL;
+    }
+    outputs_html[0] = '\0';  // Initialize as empty string
+    
     for (int i = 0; i < NUM_OUTPUTS; i++) {
-        // Use dynamic allocation to avoid format-truncation warnings
-        char* output_block = malloc(1024);  // Dynamically allocated buffer
+        // Use dynamic allocation with error checking
+        const size_t output_block_size = 1024;
+        char* output_block = malloc(output_block_size);
+        if (output_block == NULL) {
+            ESP_LOGE(TAG, "Failed to allocate memory for output block %d", i);
+            free(outputs_html);
+            free(dynamic_content);
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Memory allocation failed");
+            return ESP_FAIL;
+        }
+        
         const char* status_class = output_states[i] ? "on" : "off";
         const char* status_text = output_states[i] ? "ON" : "OFF";
         
-        char timer_info[200] = "";  // Increased timer info buffer size
+        char timer_info[200] = "";  // Timer info buffer
         if (output_timers[i].is_active) {
             uint32_t remaining = get_remaining_timer_minutes(i);
             snprintf(timer_info, sizeof(timer_info), 
                 "<div class='timer-info'>Timer: %lu minutes remaining</div>", remaining);
         }
         
-        snprintf(output_block, 1024,
+        // Generate output block with bounds checking
+        int written = snprintf(output_block, output_block_size,
             "<div class='output-control'>"
             "<div class='output-header'>Output %d (230V AC)</div>"
             "<div class='control-row'>"
@@ -389,33 +437,102 @@ static esp_err_t root_handler(httpd_req_t *req)
             output_states[i] ? "off" : "on", i, output_states[i] ? "OFF" : "ON",
             i, i, i);
         
-        strcat(outputs_html, output_block);
+        // Check if output_block was truncated
+        if (written >= (int)output_block_size) {
+            ESP_LOGW(TAG, "Output block %d was truncated", i);
+        }
+        
+        // Safely concatenate with bounds checking
+        size_t current_len = strlen(outputs_html);
+        size_t block_len = strlen(output_block);
+        if (current_len + block_len >= outputs_html_size) {
+            ESP_LOGE(TAG, "Outputs HTML buffer would overflow at output %d", i);
+            free(output_block);
+            free(outputs_html);
+            free(dynamic_content);
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Buffer overflow");
+            return ESP_FAIL;
+        }
+        
+        strncat(outputs_html, output_block, outputs_html_size - current_len - 1);
         free(output_block);  // Free the dynamically allocated memory
     }
     
-    // Replace placeholder with actual content
+    // Replace placeholder with actual content using safer approach
     char* pos = strstr(dynamic_content, "<div id='outputs'>");
     if (pos) {
         char* end = strstr(pos, "</div>");
         if (end) {
             end += 6; // Length of "</div>"
-            memmove(pos + strlen(outputs_html), end, strlen(end) + 1);
-            memcpy(pos, outputs_html, strlen(outputs_html));
+            
+            // Calculate sizes for safety
+            size_t prefix_len = pos - dynamic_content;
+            size_t outputs_len = strlen(outputs_html);
+            size_t suffix_len = strlen(end);
+            size_t total_needed = prefix_len + outputs_len + suffix_len + 1;
+            
+            // Check if the result will fit in the buffer
+            if (total_needed > dynamic_content_size) {
+                ESP_LOGE(TAG, "Dynamic content would overflow buffer (need %zu, have %zu)", 
+                         total_needed, dynamic_content_size);
+                free(outputs_html);
+                free(dynamic_content);
+                httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Content too large");
+                return ESP_FAIL;
+            }
+            
+            // Safely move the suffix and insert the outputs HTML
+            memmove(pos + outputs_len, end, suffix_len + 1);
+            memcpy(pos, outputs_html, outputs_len);
+        } else {
+            ESP_LOGW(TAG, "Could not find closing </div> tag for outputs");
         }
+    } else {
+        ESP_LOGW(TAG, "Could not find outputs placeholder in HTML");
     }
     
-    httpd_resp_send(req, dynamic_content, HTTPD_RESP_USE_STRLEN);
+    // Send response with error checking
+    esp_err_t send_result = httpd_resp_send(req, dynamic_content, HTTPD_RESP_USE_STRLEN);
+    
+    // Clean up allocated memory
+    free(outputs_html);
     free(dynamic_content);
+    
+    if (send_result != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to send HTTP response");
+        return ESP_FAIL;
+    }
+    
     return ESP_OK;
 }
 
 static esp_err_t status_handler(httpd_req_t *req)
 {
     cJSON *json = cJSON_CreateObject();
+    if (json == NULL) {
+        ESP_LOGE(TAG, "Failed to create JSON object");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Memory allocation failed");
+        return ESP_FAIL;
+    }
+    
     cJSON *outputs = cJSON_CreateArray();
+    if (outputs == NULL) {
+        ESP_LOGE(TAG, "Failed to create JSON array");
+        cJSON_Delete(json);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Memory allocation failed");
+        return ESP_FAIL;
+    }
     
     for (int i = 0; i < NUM_OUTPUTS; i++) {
         cJSON *output = cJSON_CreateObject();
+        if (output == NULL) {
+            ESP_LOGE(TAG, "Failed to create JSON object for output %d", i);
+            cJSON_Delete(outputs);
+            cJSON_Delete(json);
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Memory allocation failed");
+            return ESP_FAIL;
+        }
+        
         cJSON_AddNumberToObject(output, "id", i + 1);
         cJSON_AddBoolToObject(output, "state", output_states[i]);
         cJSON_AddBoolToObject(output, "timer_active", output_timers[i].is_active);
@@ -430,11 +547,24 @@ static esp_err_t status_handler(httpd_req_t *req)
     cJSON_AddItemToObject(json, "outputs", outputs);
     
     const char *json_string = cJSON_Print(json);
+    if (json_string == NULL) {
+        ESP_LOGE(TAG, "Failed to print JSON");
+        cJSON_Delete(json);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "JSON serialization failed");
+        return ESP_FAIL;
+    }
+    
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, json_string, strlen(json_string));
+    esp_err_t send_result = httpd_resp_send(req, json_string, strlen(json_string));
     
     free((void*)json_string);
     cJSON_Delete(json);
+    
+    if (send_result != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to send JSON response");
+        return ESP_FAIL;
+    }
+    
     return ESP_OK;
 }
 
@@ -588,6 +718,13 @@ static esp_err_t wifi_connect_handler(httpd_req_t *req)
     
     // Prepare response
     cJSON *response = cJSON_CreateObject();
+    if (response == NULL) {
+        ESP_LOGE(TAG, "Failed to create response JSON object");
+        cJSON_Delete(json);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Memory allocation failed");
+        return ESP_FAIL;
+    }
+    
     if (save_ret == ESP_OK && connect_ret == ESP_OK) {
         cJSON_AddBoolToObject(response, "success", true);
         cJSON_AddStringToObject(response, "message", "Connected successfully");
@@ -597,12 +734,25 @@ static esp_err_t wifi_connect_handler(httpd_req_t *req)
     }
     
     const char *response_string = cJSON_Print(response);
+    if (response_string == NULL) {
+        ESP_LOGE(TAG, "Failed to print response JSON");
+        cJSON_Delete(response);
+        cJSON_Delete(json);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "JSON serialization failed");
+        return ESP_FAIL;
+    }
+    
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, response_string, strlen(response_string));
+    esp_err_t send_result = httpd_resp_send(req, response_string, strlen(response_string));
     
     free((void*)response_string);
     cJSON_Delete(response);
     cJSON_Delete(json);
+    
+    if (send_result != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to send WiFi response");
+        return ESP_FAIL;
+    }
     
     return ESP_OK;
 }
