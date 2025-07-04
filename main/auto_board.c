@@ -80,7 +80,7 @@ void configure_gpio(void)
     ESP_LOGI(TAG, "GPIO configuration completed");
 }
 
-void IRAM_ATTR gpio_isr_handler(void *arg)
+void gpio_isr_handler(void *arg)
 {
     uint32_t input_num = (uint32_t)arg;
     input_event_t event = {
