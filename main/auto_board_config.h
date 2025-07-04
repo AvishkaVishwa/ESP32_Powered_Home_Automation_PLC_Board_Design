@@ -7,7 +7,7 @@
 
 // Input Configuration
 #define INPUT_ACTIVE_LOW        1    // 1 = Active LOW, 0 = Active HIGH
-#define INPUT_DEBOUNCE_MS       50   // Debounce time in milliseconds
+#define INPUT_DEBOUNCE_MS       100   // Debounce time in milliseconds
 #define INPUT_PULLUP_ENABLE     1    // Enable internal pull-up resistors
 
 // Output Configuration  
