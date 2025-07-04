@@ -313,8 +313,12 @@ esp_err_t init_wifi_station(void)
         },
     };
     
-    strcpy((char*)wifi_config.sta.ssid, WIFI_SSID);
-    strcpy((char*)wifi_config.sta.password, WIFI_PASS);
+    // Safely copy WiFi credentials with bounds checking
+    strncpy((char*)wifi_config.sta.ssid, WIFI_SSID, sizeof(wifi_config.sta.ssid) - 1);
+    wifi_config.sta.ssid[sizeof(wifi_config.sta.ssid) - 1] = '\0';
+    
+    strncpy((char*)wifi_config.sta.password, WIFI_PASS, sizeof(wifi_config.sta.password) - 1);
+    wifi_config.sta.password[sizeof(wifi_config.sta.password) - 1] = '\0';
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
