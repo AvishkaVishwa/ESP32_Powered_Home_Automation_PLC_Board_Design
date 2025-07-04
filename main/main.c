@@ -97,6 +97,7 @@ void app_main(void)
     xTaskCreate(output_control_task, "output_control_task", 4096, NULL, 8, NULL);
     xTaskCreate(status_led_task, "status_led_task", 2048, NULL, 5, NULL);
     xTaskCreate(timer_processing_task, "timer_processing_task", 4096, NULL, 7, NULL);
+    xTaskCreate(web_server_monitor_task, "web_monitor_task", 4096, NULL, 6, NULL);
     
     ESP_LOGI(TAG, "All tasks created successfully");
     

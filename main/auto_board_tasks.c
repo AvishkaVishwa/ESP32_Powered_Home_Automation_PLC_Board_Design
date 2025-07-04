@@ -62,17 +62,28 @@ void output_control_task(void *arg)
     
     while (1) {
         // Simple logic: Each input controls corresponding output
-        // You can modify this logic based on your automation requirements
+        // BUT: Only apply automatic control if no manual/timer control is active
         for (int i = 0; i < NUM_INPUTS && i < NUM_OUTPUTS; i++) {
-            // Optocouplers are typically active LOW, so invert the logic
-            bool desired_output_state = !input_states[i].debounced_state;
+            // Check if this output has an active timer or manual control
+            bool timer_active = (get_remaining_timer_minutes(i) > 0);
+            bool manual_active = is_manual_control_active(i);
             
-            if (output_states[i] != desired_output_state) {
-                set_output(i, desired_output_state);
-                ESP_LOGI(TAG, "Output %d set to %s (Input %d triggered)", 
-                        i + 1, 
-                        desired_output_state ? "ON" : "OFF",
-                        i + 1);
+            // Only apply automatic input-to-output logic if no timer or manual control is active
+            if (!timer_active && !manual_active) {
+                // Optocouplers are typically active LOW, so invert the logic
+                bool desired_output_state = !input_states[i].debounced_state;
+                
+                if (output_states[i] != desired_output_state) {
+                    set_output(i, desired_output_state);
+                    ESP_LOGI(TAG, "Output %d set to %s (Input %d triggered)", 
+                            i + 1, 
+                            desired_output_state ? "ON" : "OFF",
+                            i + 1);
+                }
+            } else if (timer_active) {
+                ESP_LOGD(TAG, "Output %d under timer control, skipping automatic control", i + 1);
+            } else if (manual_active) {
+                ESP_LOGD(TAG, "Output %d under manual control, skipping automatic control", i + 1);
             }
         }
         

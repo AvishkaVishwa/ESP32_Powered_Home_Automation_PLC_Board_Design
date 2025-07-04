@@ -32,13 +32,13 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t e
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (wifi_retry_num < 5) {
+        if (wifi_retry_num < 10) {  // Increased retry attempts from 5 to 10
             esp_wifi_connect();
             wifi_retry_num++;
-            ESP_LOGI(TAG, "Retry WiFi connection (%d/5)", wifi_retry_num);
+            ESP_LOGI(TAG, "Retry WiFi connection (%d/10)", wifi_retry_num);
         } else {
             xEventGroupSetBits(wifi_event_group, WIFI_FAIL_BIT);
-            ESP_LOGI(TAG, "WiFi connection failed after 5 attempts");
+            ESP_LOGI(TAG, "WiFi connection failed after 10 attempts");
         }
         wifi_connected = false;
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
@@ -170,6 +170,15 @@ esp_err_t wifi_config_start_ap_mode(void)
 
 esp_err_t wifi_config_connect_sta(const char* ssid, const char* password)
 {
+    ESP_LOGI(TAG, "Starting WiFi connection to: %s", ssid);
+    
+    // Reset retry counter for new connection attempt
+    wifi_retry_num = 0;
+    wifi_connected = false;
+    
+    // Clear any previous event bits
+    xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
+    
     esp_netif_create_default_wifi_sta();
 
     wifi_config_t wifi_config = {
@@ -192,7 +201,7 @@ esp_err_t wifi_config_connect_sta(const char* ssid, const char* password)
             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
             pdFALSE,
             pdFALSE,
-            pdMS_TO_TICKS(10000)); // 10 second timeout
+            pdMS_TO_TICKS(30000)); // 30 second timeout (increased from 10)
 
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "Connected to WiFi successfully");
@@ -204,56 +213,6 @@ esp_err_t wifi_config_connect_sta(const char* ssid, const char* password)
         ESP_LOGI(TAG, "WiFi connection timeout");
         return ESP_ERR_TIMEOUT;
     }
-}
-
-esp_err_t wifi_config_scan_networks(char* json_buffer, size_t buffer_size)
-{
-    wifi_scan_config_t scan_config = {
-        .ssid = NULL,
-        .bssid = NULL,
-        .channel = 0,
-        .show_hidden = false
-    };
-
-    ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_config, true));
-
-    uint16_t ap_count = 0;
-    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
-    
-    if (ap_count == 0) {
-        snprintf(json_buffer, buffer_size, "{\"networks\":[]}");
-        return ESP_OK;
-    }
-
-    wifi_ap_record_t *ap_info = malloc(sizeof(wifi_ap_record_t) * ap_count);
-    if (ap_info == NULL) {
-        return ESP_ERR_NO_MEM;
-    }
-
-    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_info));
-
-    cJSON *json = cJSON_CreateObject();
-    cJSON *networks = cJSON_CreateArray();
-
-    for (int i = 0; i < ap_count; i++) {
-        cJSON *network = cJSON_CreateObject();
-        cJSON_AddStringToObject(network, "ssid", (char*)ap_info[i].ssid);
-        cJSON_AddNumberToObject(network, "rssi", ap_info[i].rssi);
-        cJSON_AddNumberToObject(network, "authmode", ap_info[i].authmode);
-        cJSON_AddItemToArray(networks, network);
-    }
-
-    cJSON_AddItemToObject(json, "networks", networks);
-    
-    char *json_string = cJSON_Print(json);
-    strncpy(json_buffer, json_string, buffer_size - 1);
-    json_buffer[buffer_size - 1] = '\0';
-    
-    free(json_string);
-    cJSON_Delete(json);
-    free(ap_info);
-
-    return ESP_OK;
 }
 
 bool wifi_config_is_connected(void)

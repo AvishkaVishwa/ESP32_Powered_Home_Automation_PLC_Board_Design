@@ -24,7 +24,6 @@ esp_err_t wifi_config_load_credentials(wifi_credentials_t *credentials);
 esp_err_t wifi_config_save_credentials(const wifi_credentials_t *credentials);
 esp_err_t wifi_config_start_ap_mode(void);
 esp_err_t wifi_config_connect_sta(const char* ssid, const char* password);
-esp_err_t wifi_config_scan_networks(char* json_buffer, size_t buffer_size);
 bool wifi_config_is_connected(void);
 void wifi_config_reset(void);
 
