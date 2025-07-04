@@ -1,0 +1,31 @@
+#ifndef WIFI_CONFIG_H
+#define WIFI_CONFIG_H
+
+#include <stdbool.h>
+#include "esp_err.h"
+
+// WiFi configuration constants
+#define WIFI_SSID_MAX_LEN 32
+#define WIFI_PASS_MAX_LEN 64
+#define WIFI_AP_SSID "ESP32-AutoBoard-Config"
+#define WIFI_AP_PASS "automation123"
+#define WIFI_CONFIG_NAMESPACE "wifi_config"
+
+// WiFi configuration structure
+typedef struct {
+    char ssid[WIFI_SSID_MAX_LEN];
+    char password[WIFI_PASS_MAX_LEN];
+    bool configured;
+} wifi_credentials_t;
+
+// Function prototypes
+esp_err_t wifi_config_init(void);
+esp_err_t wifi_config_load_credentials(wifi_credentials_t *credentials);
+esp_err_t wifi_config_save_credentials(const wifi_credentials_t *credentials);
+esp_err_t wifi_config_start_ap_mode(void);
+esp_err_t wifi_config_connect_sta(const char* ssid, const char* password);
+esp_err_t wifi_config_scan_networks(char* json_buffer, size_t buffer_size);
+bool wifi_config_is_connected(void);
+void wifi_config_reset(void);
+
+#endif // WIFI_CONFIG_H
