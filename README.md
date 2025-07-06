@@ -60,6 +60,28 @@ This project features a professionally designed PCB that integrates all componen
 - **Operating Temperature**: Industrial grade components rated for extended temperature range
 - **Certifications**: Designed for industrial automation standards
 
+### PCB Design Images
+
+#### 🎨 3D Renders & Schematics
+*PCB design images will be added here*
+
+<!-- Add your PCB design images here:
+![PCB Top View](images/pcb_top_3d.png)
+![PCB Bottom View](images/pcb_bottom_3d.png)
+![Schematic Diagram](images/schematic.png)
+![PCB Layout](images/pcb_layout.png)
+-->
+
+#### 📸 Manufactured PCB Photos
+*Photos of the actual manufactured PCB from PCBWay will be updated here after production*
+
+<!-- PCBWay manufactured PCB photos will be added here:
+![Manufactured PCB Top](images/manufactured_pcb_top.jpg)
+![Manufactured PCB Bottom](images/manufactured_pcb_bottom.jpg)
+![Assembled Board](images/assembled_board.jpg)
+![PCB Quality Check](images/pcb_quality.jpg)
+-->
+
 ## 🚀 Getting Started
 
 ### Prerequisites
