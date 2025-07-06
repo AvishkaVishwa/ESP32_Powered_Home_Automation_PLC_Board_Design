@@ -1,32 +1,216 @@
-# _Sample project_
+# ESP32 Automation Board
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+A comprehensive industrial automation controller based on ESP32 WROOM-32D featuring optocoupler-isolated inputs and solid-state relay outputs with a modern web interface for remote control and timer management.
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+## 🌟 Features
 
+### Hardware Capabilities
+- **5 Optocoupler Inputs**: 12V-24V isolated inputs using PC817/PC827 optocouplers
+- **5 SSR Outputs**: 230V AC control via solid-state relays (up to 25A per channel)
+- **Galvanic Isolation**: Complete electrical isolation between inputs/outputs and MCU
+- **Industrial Grade**: Overcurrent protection and status monitoring
+- **ESP32 WROOM-32D**: Dual-core 32-bit processor with WiFi capabilities
 
+### Software Features
+- **Modern Web Interface**: Responsive design with real-time control
+- **Timer Control**: Set automatic timers for outputs (up to 24 hours)
+- **WiFi Configuration**: Easy setup via captive portal
+- **Real-time Monitoring**: Live status updates every 2 seconds
+- **FreeRTOS Integration**: Multi-tasking with proper resource management
+- **Comprehensive Logging**: Detailed debug information via serial console
 
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
+## 🏗️ Hardware Configuration
 
-## Example folder contents
+### GPIO Pin Mapping
 
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
+#### 📥 Input Pins (12V-24V, Active LOW)
+- **Input 1**: GPIO 4
+- **Input 2**: GPIO 5  
+- **Input 3**: GPIO 18
+- **Input 4**: GPIO 19
+- **Input 5**: GPIO 21
 
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
+#### 📤 Output Pins (230V SSR Control, Active HIGH)
+- **Output 1**: GPIO 12
+- **Output 2**: GPIO 13
+- **Output 3**: GPIO 14
+- **Output 4**: GPIO 27
+- **Output 5**: GPIO 26
 
-Below is short explanation of remaining files in the project folder.
+#### 💡 Status LED
+- **Status LED**: GPIO 2 (Built-in LED)
+
+## 🔌 Custom PCB Design
+
+This project features a professionally designed PCB that integrates all components for a complete industrial automation solution:
+
+### PCB Features
+- **Compact Form Factor**: Optimized layout for industrial applications
+- **Galvanic Isolation**: Built-in optocouplers and isolation circuits
+- **Robust Connectors**: Industrial-grade terminal blocks for field wiring
+- **Power Management**: Integrated power supply circuits for stable operation
+- **Protection Circuits**: Overcurrent and surge protection for inputs/outputs
+- **Status Indicators**: LED indicators for power, WiFi, and I/O status
+- **Mounting Options**: Standard DIN rail mounting or panel mount capability
+
+### PCB Specifications
+- **Dimensions**: Compact industrial form factor
+- **Layers**: Multi-layer design for optimal signal integrity
+- **Power Input**: 12V-24V DC industrial power supply
+- **Operating Temperature**: Industrial grade components rated for extended temperature range
+- **Certifications**: Designed for industrial automation standards
+
+## 🚀 Getting Started
+
+### Prerequisites
+- ESP-IDF v4.4 or later
+- Custom Auto_Board PCB with ESP32 WROOM-32D
+- USB cable for programming
+- WiFi network for remote access
+
+### Building and Flashing
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd Auto_Board
+   ```
+
+2. **Set up ESP-IDF environment**:
+   ```powershell
+   # Windows PowerShell
+   $env:IDF_PATH = "C:\esp-idf"
+   . $env:IDF_PATH\export.ps1
+   ```
+
+3. **Configure the project**:
+   ```powershell
+   idf.py menuconfig
+   ```
+
+4. **Build the project**:
+   ```powershell
+   idf.py build
+   ```
+
+5. **Flash to ESP32**:
+   ```powershell
+   idf.py -p COM3 flash monitor
+   ```
+   *Replace COM3 with your ESP32's serial port*
+
+### Initial WiFi Setup
+
+1. **Access Point Mode**: On first boot, the ESP32 creates a WiFi access point named "ESP32-AutoBoard"
+2. **Connect**: Use password "12345678" to connect
+3. **Configure**: Open browser to `192.168.4.1` and enter your WiFi credentials
+4. **Reboot**: Device will restart and connect to your network
+
+## 🌐 Web Interface
+
+### Access
+- **Local Network**: `http://<esp32-ip-address>`
+- **Default Port**: 80
+
+### Features
+- **Real-time Control**: Toggle outputs instantly with visual feedback
+- **Input Monitoring**: Live status of all optocoupler inputs
+- **Timer Control**: Set timers from 1 minute to 24 hours
+- **Responsive Design**: Works on mobile, tablet, and desktop
+- **Status Indicators**: Visual feedback for all operations
+
+### Timer Functionality
+- Set automatic timers for any output
+- Maximum duration: 24 hours (1440 minutes)
+- Remaining time display
+- Cancel active timers
+- Manual override capability
+
+## 📁 Project Structure
 
 ```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
+Auto_Board/
+├── CMakeLists.txt                 # Main CMake configuration
+├── README.md                      # This file
+├── main/
+│   ├── CMakeLists.txt            # Main component CMake
+│   ├── main.c                    # Application entry point
+│   ├── auto_board.c              # Core automation logic
+│   ├── auto_board.h              # Hardware definitions
+│   ├── auto_board_config.h       # Configuration settings
+│   ├── auto_board_tasks.c        # FreeRTOS task implementations
+│   ├── web_server.c              # HTTP server and web interface
+│   ├── web_server.h              # Web server definitions
+│   ├── wifi_config.c             # WiFi configuration system
+│   └── wifi_config.h             # WiFi configuration headers
+├── README_AUTO.md                # Detailed hardware documentation
+├── WEB_INTERFACE_README.md       # Web interface documentation
+├── WEBSERVER_DEBUGGING_GUIDE.md  # Debugging guide
+└── PROJECT_STATUS_ANALYSIS.md    # Project status and roadmap
 ```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+
+## 🔧 Configuration
+
+### Hardware Settings
+Edit `main/auto_board_config.h` to modify:
+- GPIO pin assignments
+- Debounce timing
+- Timer limits
+- Network settings
+
+### Software Configuration
+Use `idf.py menuconfig` to configure:
+- WiFi settings
+- Logging levels
+- FreeRTOS parameters
+- Memory allocation
+
+## 🛠️ Development
+
+### Adding New Features
+1. **Hardware**: Modify GPIO definitions in `auto_board.h`
+2. **Logic**: Implement in `auto_board.c` or `auto_board_tasks.c`
+3. **Web Interface**: Update HTML/CSS/JS in `web_server.c`
+4. **Configuration**: Add settings to `auto_board_config.h`
+
+### Debugging
+- **Serial Monitor**: Use `idf.py monitor` for real-time logs
+- **Web Debug**: Check browser console for JavaScript errors
+- **Hardware Debug**: Use multimeter to verify GPIO states
+
+## ⚠️ Safety Considerations
+
+- **High Voltage Warning**: SSR outputs control 230V AC - ensure proper electrical safety
+- **Isolation**: Always maintain galvanic isolation between high and low voltage circuits
+- **Testing**: Test all safety features before connecting to live loads
+- **Certification**: Ensure compliance with local electrical codes
+
+## 📖 Additional Documentation
+
+- **[Hardware Details](README_AUTO.md)**: Complete hardware specifications
+- **[Web Interface Guide](WEB_INTERFACE_README.md)**: Detailed web interface documentation
+- **[Debugging Guide](WEBSERVER_DEBUGGING_GUIDE.md)**: Troubleshooting and debugging
+- **[Monitoring Guide](WEBSERVER_MONITORING_GUIDE.md)**: System monitoring and maintenance
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📄 License
+
+This project is open source. Please check the license file for details.
+
+## 🆘 Support
+
+For issues, questions, or contributions:
+- Check existing documentation in the project
+- Review the debugging guides
+- Create an issue with detailed information
+
+---
+
+**Built with ESP-IDF for ESP32 WROOM-32D**
