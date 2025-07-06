@@ -46,6 +46,8 @@ A comprehensive industrial automation controller based on ESP32 WROOM-32D featur
 
 ## 🌐 Web Interface & Network Access
 
+<img src ="/assets/webinterface.png">
+
 The ESP32 Auto Board hosts a web server that allows you to control and monitor the device from any browser on the same network.
 
 ### Accessing the Board
