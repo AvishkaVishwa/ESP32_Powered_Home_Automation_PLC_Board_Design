@@ -24,6 +24,7 @@
 #include "auto_board_config.h"
 #include "web_server.h"
 #include "wifi_config.h"
+#include "mdns.h"
 
 static const char *TAG = "AUTO_BOARD";
 
@@ -40,6 +41,24 @@ input_state_t input_states[NUM_INPUTS];
 bool output_states[NUM_OUTPUTS];
 QueueHandle_t input_event_queue;
 
+static void wifi_reconnect_task(void *pvParameters)
+{
+    wifi_credentials_t *credentials = (wifi_credentials_t *)pvParameters;
+
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(60000)); // Check every 60 seconds
+
+        if (!wifi_config_is_connected()) {
+            ESP_LOGI(TAG, "Periodically scanning for saved WiFi network...");
+            wifi_config_scan_and_reconnect(credentials);
+        } else {
+            // If connected, we can delete this task
+            ESP_LOGI(TAG, "WiFi is connected. Deleting reconnect task.");
+            vTaskDelete(NULL);
+        }
+    }
+}
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Starting ESP32 Automation Board");
@@ -49,6 +68,11 @@ void app_main(void)
     // Initialize WiFi configuration system
     ESP_LOGI(TAG, "Initializing WiFi configuration system...");
     wifi_config_init();
+
+    // Initialize mDNS
+    mdns_init();
+    mdns_hostname_set("autoboard");
+    mdns_instance_name_set("ESP32 Auto Board");
     
     // Try to load saved WiFi credentials
     wifi_credentials_t credentials;
@@ -61,12 +85,24 @@ void app_main(void)
         if (connect_ret != ESP_OK) {
             ESP_LOGW(TAG, "Failed to connect to saved WiFi, starting AP mode");
             wifi_config_start_ap_mode();
+            xTaskCreate(wifi_reconnect_task, "wifi_reconnect_task", 4096, &credentials, 5, NULL);
         }
     } else {
         ESP_LOGI(TAG, "No WiFi credentials found, starting AP mode for configuration");
-        ESP_LOGI(TAG, "Connect to WiFi: ESP32-AutoBoard-Config (Password: automation123)");
-        ESP_LOGI(TAG, "Then go to: http://192.168.4.1");
         wifi_config_start_ap_mode();
+        char ssid[WIFI_SSID_MAX_LEN];
+        char password[WIFI_PASS_MAX_LEN];
+        wifi_config_get_ap_credentials(ssid, password);
+        
+        esp_netif_ip_info_t ip_info;
+        esp_err_t ip_ret = wifi_config_get_ap_ip(&ip_info);
+
+        if (ip_ret == ESP_OK) {
+            ESP_LOGI(TAG, "Connect to WiFi: %s (Password: %s)", ssid, password);
+            ESP_LOGI(TAG, "Then go to: http://" IPSTR, IP2STR(&ip_info.ip));
+        } else {
+            ESP_LOGE(TAG, "Failed to get AP IP address");
+        }
     }
     
     // Initialize GPIO
@@ -98,6 +134,7 @@ void app_main(void)
     xTaskCreate(status_led_task, "status_led_task", 2048, NULL, 5, NULL);
     xTaskCreate(timer_processing_task, "timer_processing_task", 4096, NULL, 7, NULL);
     xTaskCreate(web_server_monitor_task, "web_monitor_task", 4096, NULL, 6, NULL);
+    xTaskCreate(wifi_reconnect_task, "wifi_reconnect_task", 4096, NULL, 4, NULL);
     
     ESP_LOGI(TAG, "All tasks created successfully");
     
@@ -107,9 +144,23 @@ void app_main(void)
     if (start_web_server() == ESP_OK) {
         ESP_LOGI(TAG, "Web server started successfully");
         if (wifi_config_is_connected()) {
-            ESP_LOGI(TAG, "Access the automation interface at: http://[ESP32_IP_ADDRESS]");
+            esp_netif_ip_info_t ip_info;
+            esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+            if (netif) {
+                esp_netif_get_ip_info(netif, &ip_info);
+                ESP_LOGI(TAG, "Access the automation interface at: http://" IPSTR, IP2STR(&ip_info.ip));
+                ESP_LOGI(TAG, "Or via mDNS at: http://autoboard.local");
+            } else {
+                ESP_LOGE(TAG, "Failed to get STA netif handle");
+            }
         } else {
-            ESP_LOGI(TAG, "Access WiFi configuration at: http://192.168.4.1");
+            esp_netif_ip_info_t ip_info;
+            esp_err_t ip_ret = wifi_config_get_ap_ip(&ip_info);
+            if (ip_ret == ESP_OK) {
+                ESP_LOGI(TAG, "Access WiFi configuration at: http://" IPSTR, IP2STR(&ip_info.ip));
+            } else {
+                ESP_LOGE(TAG, "Failed to get AP IP address");
+            }
         }
     } else {
         ESP_LOGE(TAG, "Failed to start web server");

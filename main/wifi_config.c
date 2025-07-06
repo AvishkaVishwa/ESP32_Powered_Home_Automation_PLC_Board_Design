@@ -231,3 +231,49 @@ void wifi_config_reset(void)
         ESP_LOGI(TAG, "WiFi credentials reset");
     }
 }
+
+void wifi_config_get_ap_credentials(char* ssid, char* password)
+{
+    strcpy(ssid, WIFI_AP_SSID);
+    strcpy(password, WIFI_AP_PASS);
+}
+
+esp_err_t wifi_config_get_ap_ip(esp_netif_ip_info_t *ip_info)
+{
+    esp_netif_t *ap_netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
+    if (ap_netif == NULL) {
+        ESP_LOGE(TAG, "AP netif handle is NULL");
+        return ESP_FAIL;
+    }
+    return esp_netif_get_ip_info(ap_netif, ip_info);
+}
+
+void wifi_config_scan_and_reconnect(const wifi_credentials_t *credentials)
+{
+    if (credentials == NULL || !credentials->configured || wifi_config_is_connected()) {
+        return;
+    }
+
+    ESP_LOGI(TAG, "Scanning for saved network: %s", credentials->ssid);
+
+    wifi_scan_config_t scan_config = {
+        .ssid = (uint8_t*)credentials->ssid,
+        .bssid = 0,
+        .channel = 0,
+        .show_hidden = true
+    };
+
+    if (esp_wifi_scan_start(&scan_config, true) == ESP_OK) {
+        uint16_t num_records = 0;
+        esp_wifi_scan_get_ap_num(&num_records);
+        if (num_records > 0) {
+            ESP_LOGI(TAG, "Found saved network. Attempting to reconnect...");
+            esp_wifi_stop();
+            wifi_config_connect_sta(credentials->ssid, credentials->password);
+        } else {
+            ESP_LOGI(TAG, "Saved network not found.");
+        }
+    } else {
+        ESP_LOGE(TAG, "Failed to start WiFi scan");
+    }
+}
