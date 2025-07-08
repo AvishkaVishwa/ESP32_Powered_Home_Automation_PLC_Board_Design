@@ -46,7 +46,7 @@ static void wifi_reconnect_task(void *pvParameters)
     wifi_credentials_t *credentials = (wifi_credentials_t *)pvParameters;
 
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(60000)); // Check every 60 seconds
+        vTaskDelay(pdMS_TO_TICKS(30000)); // Check every 30 seconds
 
         if (!wifi_config_is_connected()) {
             ESP_LOGI(TAG, "Periodically scanning for saved WiFi network...");
@@ -90,6 +90,9 @@ void app_main(void)
     } else {
         ESP_LOGI(TAG, "No WiFi credentials found, starting AP mode for configuration");
         wifi_config_start_ap_mode();
+        // Also start the reconnect task here, in case the user configures WiFi later
+        xTaskCreate(wifi_reconnect_task, "wifi_reconnect_task", 4096, &credentials, 5, NULL);
+
         char ssid[WIFI_SSID_MAX_LEN];
         char password[WIFI_PASS_MAX_LEN];
         wifi_config_get_ap_credentials(ssid, password);
@@ -134,7 +137,6 @@ void app_main(void)
     xTaskCreate(status_led_task, "status_led_task", 2048, NULL, 5, NULL);
     xTaskCreate(timer_processing_task, "timer_processing_task", 4096, NULL, 7, NULL);
     xTaskCreate(web_server_monitor_task, "web_monitor_task", 4096, NULL, 6, NULL);
-    xTaskCreate(wifi_reconnect_task, "wifi_reconnect_task", 4096, NULL, 4, NULL);
     
     ESP_LOGI(TAG, "All tasks created successfully");
     
