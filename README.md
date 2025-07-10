@@ -9,15 +9,19 @@ A comprehensive industrial automation controller based on ESP32 WROOM-32D featur
 - **5 SSR Outputs**: 230V AC control via solid-state relays (up to 25A per channel)
 - **Galvanic Isolation**: Complete electrical isolation between inputs/outputs and MCU
 - **Industrial Grade**: Overcurrent protection and status monitoring
-- **ESP32 WROOM-32D**: Dual-core 32-bit processor with WiFi capabilities
+- **ESP32 WROOM-32D**: Dual-core 32-bit processor with WiFi and Bluetooth capabilities
 
 ### Software Features
-- **Modern Web Interface**: Responsive design with real-time control
-- **Timer Control**: Set automatic timers for outputs (up to 24 hours)
-- **WiFi Configuration**: Easy setup via captive portal
-- **Real-time Monitoring**: Live status updates every 2 seconds
-- **FreeRTOS Integration**: Multi-tasking with proper resource management
-- **Comprehensive Logging**: Detailed debug information via serial console
+- **Modern Web Interface**: Responsive design with real-time control and status monitoring.
+- **Easy Network Access**: Access the web interface using the friendly address **http://autoboard.local** on your local network, thanks to mDNS support.
+- **Robust WiFi Connectivity**:
+  - **Station (STA) Mode**: Connects to your existing Wi-Fi network for seamless integration.
+  - **Access Point (AP) Mode**: Falls back to an access point (`Auto_Board_Setup`) if no saved credentials are found, allowing for easy initial configuration.
+  - **Automatic Reconnection**: Persistently tries to connect to the configured Wi-Fi network.
+- **Timer Control**: Set automatic timers for each output (up to 24 hours).
+- **Real-time Monitoring**: Live I/O status updates every 2 seconds.
+- **FreeRTOS Integration**: Multi-tasking with proper resource management for stable, long-term operation.
+- **Comprehensive Logging**: Detailed debug information via the serial console for easy troubleshooting.
 
 ## 🏗️ Hardware Configuration
 
@@ -39,6 +43,25 @@ A comprehensive industrial automation controller based on ESP32 WROOM-32D featur
 
 #### 💡 Status LED
 - **Status LED**: GPIO 2 (Built-in LED)
+
+## 🌐 Web Interface & Network Access
+
+<img src ="/assets/webinterface.png">
+
+The ESP32 Auto Board hosts a web server that allows you to control and monitor the device from any browser on the same network.
+
+### Accessing the Board
+Once connected to your Wi-Fi network, you can access the web interface by navigating to:
+**http://autoboard.local**
+
+This address is made possible by mDNS (Multicast DNS), which eliminates the need to know the board's IP address.
+
+### Initial Wi-Fi Setup
+If the board has no saved Wi-Fi credentials, it will start in Access Point (AP) mode.
+1.  Connect your phone or computer to the Wi-Fi network named `Auto_Board_Setup`.
+2.  A captive portal should automatically open. If not, open a browser and navigate to `192.168.4.1`.
+3.  Select your home Wi-Fi network, enter the password, and click "Connect".
+4.  The board will save the credentials and attempt to connect to your network. The status LED will indicate the connection status.
 
 ## 🔌 Custom PCB Design
 
@@ -93,55 +116,31 @@ This project features a professionally designed PCB that integrates all componen
    cd Auto_Board
    ```
 
-2. **Set up ESP-IDF environment**:
-   ```powershell
-   # Windows PowerShell
-   $env:IDF_PATH = "C:\esp-idf"
-   . $env:IDF_PATH\export.ps1
+2. **Add mDNS as a dependency**:
+   The project uses the `mdns` component for easy network discovery. Add it to your project using the ESP-IDF component manager:
+   ```bash
+   idf.py add-dependency "espressif/mdns^1.2"
    ```
 
 3. **Configure the project**:
-   ```powershell
+   ```bash
    idf.py menuconfig
    ```
+   - Ensure the serial port is correctly configured under `Serial Flasher Config`.
+   - Save and exit.
 
-4. **Build the project**:
-   ```powershell
-   idf.py build
+4. **Build and Flash**:
+   ```bash
+   idf.py build flash monitor
    ```
 
-5. **Flash to ESP32**:
-   ```powershell
-   idf.py -p COM3 flash monitor
-   ```
-   *Replace COM3 with your ESP32's serial port*
+5. **Access the Web Interface**:
+   - After flashing, the device will connect to your configured Wi-Fi.
+   - Open a browser and go to **http://autoboard.local**.
 
-### Initial WiFi Setup
-
-1. **Access Point Mode**: On first boot, the ESP32 creates a WiFi access point named "ESP32-AutoBoard"
-2. **Connect**: Use password "12345678" to connect
-3. **Configure**: Open browser to `192.168.4.1` and enter your WiFi credentials
-4. **Reboot**: Device will restart and connect to your network
-
-## 🌐 Web Interface
-
-### Access
-- **Local Network**: `http://<esp32-ip-address>`
-- **Default Port**: 80
-
-### Features
-- **Real-time Control**: Toggle outputs instantly with visual feedback
-- **Input Monitoring**: Live status of all optocoupler inputs
-- **Timer Control**: Set timers from 1 minute to 24 hours
-- **Responsive Design**: Works on mobile, tablet, and desktop
-- **Status Indicators**: Visual feedback for all operations
-
-### Timer Functionality
-- Set automatic timers for any output
-- Maximum duration: 24 hours (1440 minutes)
-- Remaining time display
-- Cancel active timers
-- Manual override capability
+## 🛠️ Troubleshooting
+- **404 Not Found (favicon.ico)**: This is a harmless error that occurs when a browser requests an icon for the web page tab. It does not affect functionality. You can ignore it or add a `favicon.ico` file to the web server's root to resolve it.
+- **Board not found at autoboard.local**: Ensure your device (computer/phone) and the ESP32 are on the same local network. Some routers may block mDNS traffic; check your router's settings if issues persist. You can find the board's IP address in the serial monitor logs as a fallback.
 
 ## 📁 Project Structure
 
