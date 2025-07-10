@@ -88,8 +88,10 @@ This project features a professionally designed PCB that integrates all componen
 #### 🎨 3D Renders & Schematics
 
 <img src ="Àssets/F.zone.png">
-<img src ="Àssets/B.zone.png">
+<img src ="Àssets/B.Zone.png">
 
+*3D View*
+<img src ="Àssets/3D.png">
 
 
 #### 📸 Manufactured PCB Photos
