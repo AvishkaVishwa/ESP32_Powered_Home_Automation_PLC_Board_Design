@@ -86,14 +86,13 @@ This project features a professionally designed PCB that integrates all componen
 ### PCB Design Images
 
 #### 🎨 3D Renders & Schematics
-*PCB design images will be added here*
 
-<!-- Add your PCB design images here:
-![PCB Top View](images/pcb_top_3d.png)
-![PCB Bottom View](images/pcb_bottom_3d.png)
-![Schematic Diagram](images/schematic.png)
-![PCB Layout](images/pcb_layout.png)
--->
+<img src ="Àssets/F.zone.png">
+<img src ="Àssets/B.Zone.png">
+
+*3D View*
+<img src ="Àssets/3D.png">
+
 
 #### 📸 Manufactured PCB Photos
 *Photos of the actual manufactured PCB from PCBWay will be updated here after production*
