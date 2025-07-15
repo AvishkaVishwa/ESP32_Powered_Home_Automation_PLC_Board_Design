@@ -34,7 +34,7 @@ const gpio_num_t input_gpios[] = {
 };
 
 const gpio_num_t output_gpios[] = {
-    OUTPUT_1_GPIO, OUTPUT_2_GPIO, OUTPUT_3_GPIO, OUTPUT_4_GPIO, OUTPUT_5_GPIO
+    OUTPUT_1_GPIO, OUTPUT_2_GPIO, OUTPUT_3_GPIO, /* OUTPUT_4_GPIO, */ OUTPUT_5_GPIO
 };
 
 input_state_t input_states[NUM_INPUTS];
