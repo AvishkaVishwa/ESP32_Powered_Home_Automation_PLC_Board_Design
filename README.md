@@ -81,7 +81,7 @@ This project features a professionally designed PCB that integrates all componen
 - **Power Input**: 12V-24V DC industrial power supply
 - **Operating Temperature**: Industrial grade components rated for extended temperature range
 - **Certifications**: Designed for industrial automation standards
-```
+
 ### PCB Design Images
 
 #### 🎨 3D Renders & Schematics
@@ -101,7 +101,6 @@ This project features a professionally designed PCB that integrates all componen
 ## Testing 
 
 <video src = "https://github.com/user-attachments/assets/6f2359ae-ea8d-4051-988a-b78e77dd2364">
-```
 
 
 ## 🚀 Getting Started
