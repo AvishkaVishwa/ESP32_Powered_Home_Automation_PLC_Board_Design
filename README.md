@@ -6,7 +6,7 @@ A comprehensive industrial automation controller based on ESP32 WROOM-32D featur
 
 ### Hardware Capabilities
 - **5 Optocoupler Inputs**: 12V-24V isolated inputs using PC817/PC827 optocouplers
-- **5 SSR Outputs**: 230V AC control via solid-state relays (up to 2A per channel)
+- **4 SSR Outputs**: 230V AC control via solid-state relays (up to 2A per channel)
 - **Galvanic Isolation**: Complete electrical isolation between inputs/outputs and MCU
 - **Industrial Grade**: Overcurrent protection and status monitoring
 - **ESP32 WROOM-32D**: Dual-core 32-bit processor with WiFi and Bluetooth capabilities
