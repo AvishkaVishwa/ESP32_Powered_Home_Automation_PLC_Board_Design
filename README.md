@@ -81,7 +81,7 @@ This project features a professionally designed PCB that integrates all componen
 - **Power Input**: 12V-24V DC industrial power supply
 - **Operating Temperature**: Industrial grade components rated for extended temperature range
 - **Certifications**: Designed for industrial automation standards
-
+```
 ### PCB Design Images
 
 #### 🎨 3D Renders & Schematics
@@ -101,6 +101,8 @@ This project features a professionally designed PCB that integrates all componen
 ## Testing 
 
 <video src = "https://github.com/user-attachments/assets/6f2359ae-ea8d-4051-988a-b78e77dd2364">
+```
+
 
 ## 🚀 Getting Started
 
@@ -230,5 +232,30 @@ For issues, questions, or contributions:
 - Create an issue with detailed information
 
 ---
+## 🎉 Special Thanks to PCBWay
 
-**Built with ESP-IDF for ESP32 WROOM-32D**
+
+<div align="center">
+  <img src="/assest/1.jpg" width="260">   <img src="/assest/2.jpg" width="260"> 
+</div>
+
+<p align="center">
+  <a href="https://www.pcbway.com/" target="_blank">
+    <img src="https://github.com/AvishkaVishwa/12V-DC-Motor-Speed-Controller-PCB-Design-using-KiCAD/blob/0191b6e02eeb30e176867d2a93ebec854536829a/Images/pcbwaylogo.jpg" alt="PCBWay" width="200"/>
+  </a>
+
+</p>
+
+I would like to give a huge shoutout and sincere thanks to **[PCBWay](https://www.pcbway.com/)** for sponsoring the PCB fabrication of this project!
+
+The **build quality, silkscreen clarity, via precision, and copper finish** exceeded expectations. PCBWay’s service was fast, professional, and extremely helpful throughout the production process.
+
+This project wouldn’t have been possible without their generous support. If you’re looking to manufacture professional-grade PCBs at an affordable price, I highly recommend checking them out.
+
+🔗 [Visit PCBWay →](https://www.pcbway.com/)
+
+---
+
+---
+
+> © 2025 Avishka Vishwa   •   Made with ☕ & 🕑
