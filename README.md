@@ -95,14 +95,13 @@ This project features a professionally designed PCB that integrates all componen
 
 
 #### 📸 Manufactured PCB Photos
-*Photos of the actual manufactured PCB from PCBWay will be updated here after production*
 
-<!-- PCBWay manufactured PCB photos will be added here:
-![Manufactured PCB Top](images/manufactured_pcb_top.jpg)
-![Manufactured PCB Bottom](images/manufactured_pcb_bottom.jpg)
-![Assembled Board](images/assembled_board.jpg)
-![PCB Quality Check](images/pcb_quality.jpg)
--->
+<img src ="Àssets/Front.jpg">
+<img src ="Àssets/back.jpg">
+
+#### Testing 
+
+<video src = "https://github.com/user-attachments/assets/6f2359ae-ea8d-4051-988a-b78e77dd2364">
 
 ## 🚀 Getting Started
 
