@@ -102,7 +102,7 @@ This project features a professionally designed PCB that integrates all componen
 
 <video src = "https://github.com/user-attachments/assets/6f2359ae-ea8d-4051-988a-b78e77dd2364">
 
-
+---
 ## 🚀 Getting Started
 
 ### Prerequisites
