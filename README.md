@@ -85,7 +85,7 @@ This project features a professionally designed PCB that integrates all componen
 ### PCB Design Images
 
 #### 🎨 3D Renders & Schematics
-
+<img src ="Àssets/schimatic.png">
 <img src ="Àssets/F.zone.png">
 <img src ="Àssets/B.Zone.png">
 
