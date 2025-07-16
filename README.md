@@ -258,4 +258,4 @@ This project wouldn’t have been possible without their generous support. If yo
 
 ---
 
-> © 2025 Avishka Vishwa   •   Made with ☕ & 🕑
+> © 2025 Avishka Vishwajith   
