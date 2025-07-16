@@ -236,7 +236,7 @@ For issues, questions, or contributions:
 
 
 <div align="center">
-  <img src="/assest/1.jpg" width="260">   <img src="/assest/2.jpg" width="260"> 
+  <img src="Àssets/Front.jpg" width="260">   <img src="Àssets/back.jpg" width="260"> 
 </div>
 
 <p align="center">
