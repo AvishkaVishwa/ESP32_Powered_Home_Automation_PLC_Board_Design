@@ -205,13 +205,6 @@ Use `idf.py menuconfig` to configure:
 - **Testing**: Test all safety features before connecting to live loads
 - **Certification**: Ensure compliance with local electrical codes
 
-## 📖 Additional Documentation
-
-- **[Hardware Details](README_AUTO.md)**: Complete hardware specifications
-- **[Web Interface Guide](WEB_INTERFACE_README.md)**: Detailed web interface documentation
-- **[Debugging Guide](WEBSERVER_DEBUGGING_GUIDE.md)**: Troubleshooting and debugging
-- **[Monitoring Guide](WEBSERVER_MONITORING_GUIDE.md)**: System monitoring and maintenance
-
 ## 🤝 Contributing
 
 1. Fork the repository
