@@ -117,7 +117,7 @@ static const char* simple_html_page =
 "<div class='gpio-info'>"
 "<div style='text-align:center;margin-bottom:10px;font-weight:bold;color:#ffd700;'>📍 GPIO Pin Configuration</div>"
 "<div class='gpio-row'><span class='gpio-label'>Inputs (12V-24V):</span><span class='gpio-value'>GPIO 4,5,18,19,21</span></div>"
-"<div class='gpio-row'><span class='gpio-label'>Outputs (230V SSR):</span><span class='gpio-value'>GPIO 12,13,14,27,26</span></div>"
+"<div class='gpio-row'><span class='gpio-label'>Outputs (230V SSR):</span><span class='gpio-value'>GPIO 12,13,14,26</span></div>"
 "<div class='gpio-row'><span class='gpio-label'>Status LED:</span><span class='gpio-value'>GPIO 2</span></div>"
 "</div>"
 "<div class='controls-section'>"

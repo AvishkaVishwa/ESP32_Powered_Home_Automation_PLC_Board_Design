@@ -15,7 +15,7 @@
 #define OUTPUT_1_GPIO   GPIO_NUM_12
 #define OUTPUT_2_GPIO   GPIO_NUM_13
 #define OUTPUT_3_GPIO   GPIO_NUM_14
-#define OUTPUT_4_GPIO   GPIO_NUM_27
+//#define OUTPUT_4_GPIO   GPIO_NUM_27
 #define OUTPUT_5_GPIO   GPIO_NUM_26
 
 // Status LED
@@ -23,7 +23,7 @@
 
 // Configuration constants
 #define NUM_INPUTS      5
-#define NUM_OUTPUTS     5
+#define NUM_OUTPUTS     4
 #define DEBOUNCE_TIME_MS 50
 
 // Input state structure
