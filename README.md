@@ -142,32 +142,6 @@ This project features a professionally designed PCB that integrates all componen
    - After flashing, the device will connect to your configured Wi-Fi.
    - Open a browser and go to **http://autoboard.local**.
 
-## 🛠️ Troubleshooting
-- **404 Not Found (favicon.ico)**: This is a harmless error that occurs when a browser requests an icon for the web page tab. It does not affect functionality. You can ignore it or add a `favicon.ico` file to the web server's root to resolve it.
-- **Board not found at autoboard.local**: Ensure your device (computer/phone) and the ESP32 are on the same local network. Some routers may block mDNS traffic; check your router's settings if issues persist. You can find the board's IP address in the serial monitor logs as a fallback.
-
-## 📁 Project Structure
-
-```
-Auto_Board/
-├── CMakeLists.txt                 # Main CMake configuration
-├── README.md                      # This file
-├── main/
-│   ├── CMakeLists.txt            # Main component CMake
-│   ├── main.c                    # Application entry point
-│   ├── auto_board.c              # Core automation logic
-│   ├── auto_board.h              # Hardware definitions
-│   ├── auto_board_config.h       # Configuration settings
-│   ├── auto_board_tasks.c        # FreeRTOS task implementations
-│   ├── web_server.c              # HTTP server and web interface
-│   ├── web_server.h              # Web server definitions
-│   ├── wifi_config.c             # WiFi configuration system
-│   └── wifi_config.h             # WiFi configuration headers
-├── README_AUTO.md                # Detailed hardware documentation
-├── WEB_INTERFACE_README.md       # Web interface documentation
-├── WEBSERVER_DEBUGGING_GUIDE.md  # Debugging guide
-└── PROJECT_STATUS_ANALYSIS.md    # Project status and roadmap
-```
 
 ## 🔧 Configuration
 
@@ -185,18 +159,6 @@ Use `idf.py menuconfig` to configure:
 - FreeRTOS parameters
 - Memory allocation
 
-## 🛠️ Development
-
-### Adding New Features
-1. **Hardware**: Modify GPIO definitions in `auto_board.h`
-2. **Logic**: Implement in `auto_board.c` or `auto_board_tasks.c`
-3. **Web Interface**: Update HTML/CSS/JS in `web_server.c`
-4. **Configuration**: Add settings to `auto_board_config.h`
-
-### Debugging
-- **Serial Monitor**: Use `idf.py monitor` for real-time logs
-- **Web Debug**: Check browser console for JavaScript errors
-- **Hardware Debug**: Use multimeter to verify GPIO states
 
 ## ⚠️ Safety Considerations
 
